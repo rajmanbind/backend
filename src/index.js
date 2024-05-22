@@ -5,8 +5,21 @@ import connectDB from "./db/connectdb.js";
 
 const app = express(); // Create an instance of express
 connectDB()
+  .then(() => {
+    app.on("error", (error) => {
+      console.error(" Server connecteion failed!!! ", error);
+      throw error;
+    });
 
-// console.log(process.env.MONGODB_URI);
+    app.listen(process.env.PORT || 8000, () => {
+      console.log(`Server is running at prot: ${process.env.PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.log("MongoDB connection faile !!!", error);
+  });
+
+// console.log(process.envf.MONGODB_URI);
 /*
 (async () => {
   try {
