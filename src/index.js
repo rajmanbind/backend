@@ -1,9 +1,9 @@
 import dotenv from "dotenv";
 dotenv.config(); // Load environment variables from .env file
-import express from "express";
+// import express from "express";
 import connectDB from "./db/connectdb.js";
-
-const app = express(); // Create an instance of express
+import { app } from "./app.js";
+// const app = express(); // Create an instance of express
 connectDB()
   .then(() => {
     app.on("error", (error) => {
