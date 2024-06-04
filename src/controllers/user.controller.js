@@ -17,16 +17,33 @@ const userRegistration = asyncHandler(async (req, res) => {
   if (existedUser) {
     throw new ApiError(409, "User with emai or username already exist!");
   }
-
-  const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverLocalPath = req.files?.coverImage[0]?.path;
+  // console.log(req.files);
+  // console.log(req.body)
+  // const avatarLocalPath = req.files?.avatar[0]?.path;
+  // const coverLocalPath = req.files?.coverImage[0]?.path;
+  let avatarLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.avatar) &&
+    req.files.avatar.length > 0
+  ) {
+    avatarLocalPath = req.files?.avatar[0]?.path;
+  }
+  let coverLocalPath;
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverLocalPath = req.files?.coverImage[0]?.path;
+  }
   if (!avatarLocalPath) throw new ApiError(400, "Avatar file is required!");
 
-  const avatar = uplaodCloudinary(avatarLocalPath);
-  const coverImage = uplaodCloudinary(coverLocalPath);
+  const avatar = await uplaodCloudinary(avatarLocalPath);
+  const coverImage = await uplaodCloudinary(coverLocalPath);
   if (!avatar) throw new ApiError(400, "Avatar file is required!");
 
-  const user = User.create({
+  const user = await User.create({
     fullName,
     avatar: avatar.url,
     coverImage: coverImage?.url || "",
@@ -35,7 +52,7 @@ const userRegistration = asyncHandler(async (req, res) => {
     username: username.toLowerCase(),
   });
   const createdUser = await User.findById(user._id).select(
-    "-password - refreshToken"
+    "-password -refreshToken"
   );
   if (!createdUser) {
     throw new ApiError(500, "Something went wrong while registering the user");
@@ -45,10 +62,6 @@ const userRegistration = asyncHandler(async (req, res) => {
     .status(201)
     .json(new ApiResponse(200, createdUser, "User registerd successfully!"));
 
-  // if (fullName === "") {
-  // }
-
-  //   console.log(username, email, fullName, password);
   // validation
   // check if user already exists: username , email
   // check for images, check for avatar
@@ -58,6 +71,6 @@ const userRegistration = asyncHandler(async (req, res) => {
   // check for user creation
   // return response
 
-  res.status(200).json({ message: "OK" });
+  // res.status(200).json({ message: "OK" });
 });
 export { userRegistration };
